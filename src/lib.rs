@@ -22,6 +22,11 @@ static PROXYKV_PATTERN: Lazy<Regex> =
 
 const BASE_DOMAIN: &str = "xrayjwf.dpdns.org";
 
+const WILDCARDS: &[(&str, &str)] = &[
+    ("SUPPORT.ZOOM.US", "support.zoom.us"),
+    ("AVA.GAME.NAVER", "ava.game.naver"),
+];
+
 #[event(fetch)]
 pub async fn main(req: Request, env: Env, _: Context) -> Result<Response> {
     let uuid = env
