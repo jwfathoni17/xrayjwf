@@ -4,8 +4,7 @@ mod proxy;
 use crate::config::Config;
 use crate::proxy::*;
 use std::collections::HashMap;
-use base64::{engine::general_purpose::URL_SAFE, Engine as _};
-use serde_json::{json, Value};
+use serde_json::Value;
 use uuid::Uuid;
 use worker::*;
 use once_cell::sync::Lazy;
@@ -694,7 +693,7 @@ pub async fn main(
     };
     Router::with_data(config)
         .on("/", web_ui)
-        .on("/api/servers", api_servers)
+        .on_async("/api/servers", api_servers)
         .on("/link", link)
         // /ID/1
         // /ID/2
