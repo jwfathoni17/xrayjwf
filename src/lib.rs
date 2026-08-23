@@ -89,7 +89,7 @@ async fn tunnel(
 
         if proxy_kv_str.is_empty() {
             let url =
-                "https://raw.githubusercontent.com/ziyosen/tunel-worker/refs/heads/main/proxy.json";
+                "https://raw.githubusercontent.com/jwfathoni17/xrayjwf/main/proxy.json";
 
             let req = Fetch::Url(Url::parse(url)?);
 
