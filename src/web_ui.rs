@@ -163,6 +163,8 @@ pre {
 
 <select id="wc">
     <option value="nonwc">NON WC</option>
+    <option value="support.zoom.us">SUPPORT.ZOOM.US</option>
+    <option value="ava.game.naver">AVA.GAME.NAVER</option>
     <option value="custom">CUSTOM</option>
 </select>
 
