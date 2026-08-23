@@ -18,7 +18,7 @@ const BASE_DOMAIN: &str = "xrayjwf.dpdns.org";
 const PROXY_JSON_URL: &str =
     "https://raw.githubusercontent.com/jwfathoni17/xrayjwf/main/proxy.json";
 // WEB UI
-const WEB_UI: &str = r#"<!DOCTYPE html>
+const WEB_UI: &str = r###"<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -664,7 +664,7 @@ loadServers();
 </script>
 </body>
 </html>
-"#;
+"###;
 // MAIN
 #[event(fetch)]
 pub async fn main(
