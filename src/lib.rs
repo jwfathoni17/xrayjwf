@@ -4,7 +4,7 @@ mod proxy;
 use crate::config::Config;
 use crate::proxy::*;
 use std::collections::HashMap;
-use serde_json::Value;
+use serde_json::{json, Value};
 use uuid::Uuid;
 use worker::*;
 use once_cell::sync::Lazy;
@@ -83,11 +83,13 @@ body {
     letter-spacing: .06em;
 }
 /* SERVER */
-.country {
-    margin-bottom: 18px;
+ .server-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
 }
-.country:last-child {
-    margin-bottom: 0;
+.country {
+    min-width: 0;
 }
 .country-name {
     margin-bottom: 8px;
@@ -100,7 +102,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 10px;
+    padding: 7px 9px;
     margin-bottom: 6px;
     background: #fafafa;
     border: 1px solid #e3e3e3;
@@ -119,7 +121,7 @@ body {
 .server-left {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     min-width: 0;
 }
 .radio {
@@ -132,31 +134,66 @@ body {
 .server.selected .radio {
     border: 4px solid #111;
 }
+.server-info {
+    min-width: 0;
+}
+.server-number {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+}
 .server-address {
+    margin-top: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-family:
-        "SFMono-Regular",
-        Consolas,
-        monospace;
-    font-size: 11px;
-}
-.server-number {
-    margin-left: 8px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 8px;
     color: #999;
-    font-size: 9px;
 }
 .ping {
     flex-shrink: 0;
-    margin-left: 10px;
-    font-family:
-        "SFMono-Regular",
-        Consolas,
-        monospace;
-    font-size: 10px;
+    margin-left: 6px;
+    padding: 4px 7px;
+    border: 0;
+    border-radius: 5px;
+    background: #eee;
+    color: #555;
+    font-size: 8px;
+    cursor: pointer;
+}
+.ping:hover {
+    background: #ddd;
+}
+.ping:disabled {
+    cursor: wait;
+    opacity: .55;
+}
+.ping.good {
+    color: #111;
+}
+.ping.bad {
     color: #888;
 }
+@media (max-width: 600px) {
+    .server-grid {
+        gap: 8px;
+    }
+    .server {
+        padding: 6px;
+    }
+    .server-address {
+        font-size: 7px;
+    }
+    .server-number {
+        font-size: 9px;
+    }
+    .ping {
+        font-size: 7px;
+        padding: 4px 5px;
+    }
+}
+
 /* WC */
 select,
 input {
@@ -397,88 +434,71 @@ async function loadServers() {
 // RENDER SERVER
 function renderServers() {
     serversElement.innerHTML = "";
-    for (
-        const location in serverData
-    ) {
-        const servers =
-            serverData[location];
-        const country =
-            document.createElement("div");
-        country.className =
-            "country";
-        const title =
-            document.createElement("div");
-        title.className =
-            "country-name";
-        title.textContent =
-            getCountryName(location);
+    const grid = document.createElement("div");
+    grid.className = "server-grid";
+
+    for (const location in serverData) {
+        const servers = serverData[location];
+        const country = document.createElement("div");
+        country.className = "country";
+
+        const title = document.createElement("div");
+        title.className = "country-name";
+        title.textContent = getCountryName(location);
         country.appendChild(title);
-        servers.forEach(
-            (server, index) => {
-                const button =
-                    document.createElement(
-                        "button"
-                    );
-                button.className =
-                    "server";
-                const left =
-                    document.createElement(
-                        "div"
-                    );
-                left.className =
-                    "server-left";
-                const radio =
-                    document.createElement(
-                        "div"
-                    );
-                radio.className =
-                    "radio";
-                const address =
-                    document.createElement(
-                        "div"
-                    );
-                address.className =
-                    "server-address";
-                address.textContent =
-                    server;
-                const number =
-                    document.createElement(
-                        "span"
-                    );
-                number.className =
-                    "server-number";
-                number.textContent =
-                    "#" + (index + 1);
-                address.appendChild(
-                    number
-                );
-                left.appendChild(radio);
-                left.appendChild(address);
-                const ping =
-                    document.createElement(
-                        "div"
-                    );
-                ping.className =
-                    "ping";
-                ping.textContent =
-                    "—";
-                button.appendChild(left);
-                button.appendChild(ping);
-                button.onclick = () => {
-                    selectServer(
-                        location,
-                        index,
-                        button
-                    );
-                };
-                country.appendChild(button);
-            }
-        );
-        serversElement.appendChild(
-            country
-        );
+
+        servers.forEach((server, index) => {
+            const row = document.createElement("div");
+            row.className = "server";
+
+            const left = document.createElement("div");
+            left.className = "server-left";
+
+            const radio = document.createElement("div");
+            radio.className = "radio";
+
+            const info = document.createElement("div");
+            info.className = "server-info";
+
+            const number = document.createElement("div");
+            number.className = "server-number";
+            number.textContent = "Server " + (index + 1);
+
+            const address = document.createElement("div");
+            address.className = "server-address";
+            address.textContent = server;
+
+            info.appendChild(number);
+            info.appendChild(address);
+            left.appendChild(radio);
+            left.appendChild(info);
+
+            const ping = document.createElement("button");
+            ping.type = "button";
+            ping.className = "ping";
+            ping.textContent = "PING";
+
+            ping.onclick = (event) => {
+                event.stopPropagation();
+                checkPing(location, index + 1, ping);
+            };
+
+            row.appendChild(left);
+            row.appendChild(ping);
+
+            row.onclick = () => {
+                selectServer(location, index, row);
+            };
+
+            country.appendChild(row);
+        });
+
+        grid.appendChild(country);
     }
+
+    serversElement.appendChild(grid);
 }
+
 // SELECT SERVER
 function selectServer(
     location,
@@ -526,6 +546,43 @@ wcElement.addEventListener(
         }
     }
 );
+// PING SERVER
+async function checkPing(location, server, button) {
+    if (button.disabled) return;
+
+    button.disabled = true;
+    button.classList.remove("good", "bad");
+    button.textContent = "...";
+
+    try {
+        const response = await fetch(
+            "/api/ping?location=" +
+            encodeURIComponent(location) +
+            "&server=" +
+            encodeURIComponent(server),
+            { cache: "no-store" }
+        );
+
+        if (!response.ok) throw new Error("Ping failed");
+
+        const data = await response.json();
+
+        if (data.ok && typeof data.ms === "number") {
+            button.textContent = data.ms + " ms";
+            button.classList.add(data.ms <= 150 ? "good" : "bad");
+        } else {
+            button.textContent = "OFF";
+            button.classList.add("bad");
+        }
+    } catch (error) {
+        console.error(error);
+        button.textContent = "OFF";
+        button.classList.add("bad");
+    } finally {
+        button.disabled = false;
+    }
+}
+
 // CREATE ACCOUNT
 async function createAccount() {
     if (!selectedServer) {
@@ -694,6 +751,7 @@ pub async fn main(
     Router::with_data(config)
         .on("/", web_ui)
         .on_async("/api/servers", api_servers)
+        .on_async("/api/ping", api_ping)
         .on("/link", link)
         // /ID/1
         // /ID/2
@@ -770,6 +828,148 @@ async fn api_servers(
         )?;
     Response::from_json(&data)
 }
+// API PING
+async fn api_ping(
+    req: Request,
+    cx: RouteContext<Config>,
+) -> Result<Response> {
+    let url = req.url()?;
+
+    let location = url
+        .query_pairs()
+        .find(|(key, _)| key == "location")
+        .map(|(_, value)| value.to_uppercase())
+        .unwrap_or_default();
+
+    let server_number = url
+        .query_pairs()
+        .find(|(key, _)| key == "server")
+        .and_then(|(_, value)| value.parse::<usize>().ok())
+        .unwrap_or(0);
+
+    if !PROXYKV_PATTERN.is_match(&location) || server_number == 0 {
+        return Response::from_json(&json!({
+            "ok": false,
+            "ms": null,
+            "error": "Invalid server"
+        }));
+    }
+
+    let kv = cx.kv("YUMI")?;
+    let mut proxy_kv_str = kv
+        .get("proxy_kv")
+        .text()
+        .await?
+        .unwrap_or_default();
+
+    if proxy_kv_str.is_empty() {
+        let request = Fetch::Url(
+            Url::parse(PROXY_JSON_URL)?
+        );
+        let mut response = request.send().await?;
+
+        if response.status_code() != 200 {
+            return Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Failed to load proxy.json"
+            }));
+        }
+
+        proxy_kv_str = response.text().await?;
+
+        kv.put("proxy_kv", &proxy_kv_str)?
+            .expiration_ttl(300)
+            .execute()
+            .await?;
+    }
+
+    let proxy_kv: HashMap<String, Vec<String>> =
+        serde_json::from_str(&proxy_kv_str)?;
+
+    let servers = match proxy_kv.get(&location) {
+        Some(value) => value,
+        None => {
+            return Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Location not found"
+            }));
+        }
+    };
+
+    let selected = match servers.get(server_number - 1) {
+        Some(value) => value,
+        None => {
+            return Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Server not found"
+            }));
+        }
+    };
+
+    let (host, port) = match selected.rsplit_once(':') {
+        Some((host, port)) => {
+            match port.parse::<u16>() {
+                Ok(port) => (host.to_string(), port),
+                Err(_) => {
+                    return Response::from_json(&json!({
+                        "ok": false,
+                        "ms": null,
+                        "error": "Invalid port"
+                    }));
+                }
+            }
+        }
+        None => {
+            return Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Invalid server address"
+            }));
+        }
+    };
+
+    let start = Date::now().as_millis();
+
+    let mut socket = match Socket::builder().connect(host.clone(), port) {
+        Ok(socket) => socket,
+        Err(_) => {
+            return Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Connection failed"
+            }));
+        }
+    };
+
+    match socket.opened().await {
+        Ok(_) => {
+            let elapsed = Date::now()
+                .as_millis()
+                .saturating_sub(start);
+
+            let _ = socket.close().await;
+
+            Response::from_json(&json!({
+                "ok": true,
+                "ms": elapsed,
+                "server": selected
+            }))
+        }
+        Err(_) => {
+            let _ = socket.close().await;
+
+            Response::from_json(&json!({
+                "ok": false,
+                "ms": null,
+                "error": "Connection failed"
+            }))
+        }
+    }
+}
+
 // SELECTED TUNNEL
 //
 // /ID/1
