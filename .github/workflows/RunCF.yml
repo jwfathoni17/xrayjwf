@@ -1,4 +1,4 @@
-name: Run CF Changle
+name: Deploy Xray Worker
 
 on:
   workflow_dispatch:
@@ -15,9 +15,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: cf
+
     steps:
-      - uses: actions/checkout@v4
-      - name: deploy
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install worker-build
+        run: cargo install worker-build
+
+      - name: Build Rust Worker
+        run: worker-build --release
+
+      - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
-            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env=""
