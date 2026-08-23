@@ -1,4 +1,4 @@
-# Xray on Cloudflare Workers (English Documentation)
+# Xray on Cloudflare Workers (English Documentation).
 
 Xray is a lightweight, serverless V2Ray tunnel built on Cloudflare Workers, optimized for the Indonesian network environment. It supports modern mainstream proxy protocols and offers fast, secure, and highly scalable deployment without the need for a traditional VPS.
 
