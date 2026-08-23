@@ -11,11 +11,5 @@ workers_dev = true
 binding = "YUMI"
 id = "3b390cf00ef647b0a4ea0db33e61f43c"
 
-[build]
-command = "cargo install worker-build && worker-build --release"
-
-[env.dev]
-build = { command = "cargo install worker-build && worker-build --dev" }
-
 [vars]
 UUID = "c3ff0fe2-e5bc-4c1f-91fd-983aecee0dfd"
