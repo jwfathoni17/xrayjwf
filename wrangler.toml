@@ -9,7 +9,7 @@ workers_dev = true
 
 [[kv_namespaces]]
 binding = "YUMI"
-id = "8ff1913fa986482d967e0a5c7e2b0791"
+id = "3b390cf00ef647b0a4ea0db33e61f43c"
 
 [build]
 command = "cargo install worker-build && worker-build --release"
@@ -18,4 +18,4 @@ command = "cargo install worker-build && worker-build --release"
 build = { command = "cargo install worker-build && worker-build --dev" }
 
 [vars]
-UUID = "2bcfbfba-b446-4ad5-93ad-72af9e008f61"
+UUID = "c3ff0fe2-e5bc-4c1f-91fd-983aecee0dfd"
